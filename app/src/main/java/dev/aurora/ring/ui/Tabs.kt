@@ -438,7 +438,7 @@ fun AudioTab(
 }
 
 @Composable
-fun AlertsTab(state: AppState, picker: (PickerTarget) -> Unit) {
+fun AlertsTab(state: AppState, refreshKey: Int = 0, picker: (PickerTarget) -> Unit) {
     val settings = state.settings
     val context = LocalContext.current
     val engine by state.engineStatus.collectAsStateWithLifecycle()
@@ -601,7 +601,7 @@ fun AlertsTab(state: AppState, picker: (PickerTarget) -> Unit) {
 }
 
 @Composable
-fun SystemTab(state: AppState) {
+fun SystemTab(state: AppState, refreshKey: Int = 0) {
     val settings = state.settings
     val context = LocalContext.current
     val engine by state.engineStatus.collectAsStateWithLifecycle()

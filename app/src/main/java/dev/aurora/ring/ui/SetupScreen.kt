@@ -37,6 +37,7 @@ import dev.aurora.ring.led.LightsApi
 @Composable
 fun SetupScreen(
     state: AppState,
+    refreshKey: Int = 0,
     onRequestMic: () -> Unit,
     onRequestNotifications: () -> Unit
 ) {

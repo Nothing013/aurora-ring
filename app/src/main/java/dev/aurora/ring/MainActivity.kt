@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import dev.aurora.ring.service.RingService
 import dev.aurora.ring.ui.AppState
@@ -59,21 +58,21 @@ class MainActivity : ComponentActivity() {
             AuroraTheme {
                 val tick by resumeTick
                 val settings = state.settings
-                key(tick) {
-                    if (settings.setupDone) {
-                        HomeScreen(
-                            state = state,
-                            onRequestMic = { micLauncher.launch(Manifest.permission.RECORD_AUDIO) }
-                        )
-                    } else {
-                        SetupScreen(
-                            state = state,
-                            onRequestMic = { micLauncher.launch(Manifest.permission.RECORD_AUDIO) },
-                            onRequestNotifications = {
-                                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            }
-                        )
-                    }
+                if (settings.setupDone) {
+                    HomeScreen(
+                        state = state,
+                        refreshKey = tick,
+                        onRequestMic = { micLauncher.launch(Manifest.permission.RECORD_AUDIO) }
+                    )
+                } else {
+                    SetupScreen(
+                        state = state,
+                        refreshKey = tick,
+                        onRequestMic = { micLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+                        onRequestNotifications = {
+                            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    )
                 }
             }
         }

@@ -51,6 +51,7 @@ import dev.aurora.ring.data.ScreenModes
 @Composable
 fun HomeScreen(
     state: AppState,
+    refreshKey: Int = 0,
     onRequestMic: () -> Unit
 ) {
     val settings = state.settings
@@ -112,8 +113,8 @@ fun HomeScreen(
                     when (current) {
                         0 -> LightsTab(state = state)
                         1 -> AudioTab(state = state, onRequestMic = onRequestMic, picker = { picker = it })
-                        2 -> AlertsTab(state = state, picker = { picker = it })
-                        else -> SystemTab(state = state)
+                        2 -> AlertsTab(state = state, refreshKey = refreshKey, picker = { picker = it })
+                        else -> SystemTab(state = state, refreshKey = refreshKey)
                     }
                 }
             }
