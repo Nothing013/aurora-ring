@@ -29,7 +29,6 @@ class NotifListener : NotificationListenerService() {
 
         if (media || notification.flags and Notification.FLAG_ONGOING_EVENT != 0) return
         if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
-        if (notification.extras.getBoolean(Notification.EXTRA_IS_GROUP_SUMMARY, false)) return
 
         val now = SystemClock.elapsedRealtime()
         val last = recent[sbn.key] ?: 0L
