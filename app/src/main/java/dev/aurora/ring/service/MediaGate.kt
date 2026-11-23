@@ -31,8 +31,11 @@ object MediaGate {
 
     fun current(): String? = currentPackage
 
-    fun allows(settings: Settings): Boolean {
+    fun allows(settings: Settings, listenerAvailable: Boolean = true): Boolean {
         if (!settings.audio.appFilter) return true
+        // Without notification access the gate can never learn what is playing;
+        // failing open is better than silently disabling audio.
+        if (!listenerAvailable) return true
         if (settings.audio.source == AudioSources.MIC) return true
         val pkg = currentPackage ?: return false
         if (SystemClock.elapsedRealtime() - updatedAt > STALE_MS) return false

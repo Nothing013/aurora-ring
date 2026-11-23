@@ -281,8 +281,15 @@ internal class RootShell {
 
     private fun closeLocked() {
         alive = false
+        runCatching { writer?.flush() }
         runCatching { writer?.close() }
-        runCatching { process?.destroy() }
+        val p = process
+        if (p != null) {
+            // Closing stdin makes the shell drain its queue and exit; give it a
+            // moment before killing it so the last frame/reset is not lost.
+            runCatching { p.waitFor(300, TimeUnit.MILLISECONDS) }
+            runCatching { p.destroy() }
+        }
         writer = null
         process = null
     }

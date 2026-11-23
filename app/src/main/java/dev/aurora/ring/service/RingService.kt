@@ -17,6 +17,7 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
+import androidx.core.app.NotificationManagerCompat
 import dev.aurora.ring.MainActivity
 import dev.aurora.ring.R
 import dev.aurora.ring.audio.BeatEngine
@@ -268,9 +269,12 @@ class RingService : Service() {
 
     private fun syncAudioGate() {
         val s = Prefs.load(this)
+        val listener = runCatching {
+            NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+        }.getOrDefault(false)
         val open = s.audio.enabled &&
             (screenOn || s.audio.allowScreenOff) &&
-            MediaGate.allows(s)
+            MediaGate.allows(s, listener)
         audio.setGate(open)
     }
 

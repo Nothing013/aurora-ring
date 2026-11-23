@@ -147,12 +147,12 @@ class LedController(private val context: Context) {
             }
 
             LedFrame.Off -> {
-                solidReady = false
-                dualReady = false
-                spotReady = false
+                // Only blank the channel mask: the chip stays initialised, so the
+                // next colour frame does not have to replay the whole init
+                // sequence. `effect 0` would select a canned pattern and force a
+                // re-init on every flash, which stalls the render loop.
                 root.submit(
                     "SYS=\"$SYS_REG\"; " +
-                        "echo 0 > \"$SYS_EFFECT\"; " +
                         "echo '0xa1 0x00' > \"\$SYS\"; " +
                         "echo '0xab 0x00' > \"\$SYS\""
                 )
@@ -183,7 +183,7 @@ class LedController(private val context: Context) {
         if (solidReady) return
         dualReady = false
         spotReady = false
-        root.exec(
+        submitInit(
             "SYS=\"$SYS_REG\"; " +
                 "echo 1 > \"$SYS_HWEN\"; " +
                 "echo 2 > \"$SYS_EFFECT\"; " +
@@ -194,15 +194,14 @@ class LedController(private val context: Context) {
                 "echo '0xa1 0x00' > \"\$SYS\"; " +
                 "echo '0xac 0x00' > \"\$SYS\"; " +
                 "echo '0xab 0xff' > \"\$SYS\""
-        )
-        solidReady = true
+        ).also { solidReady = it }
     }
 
     private fun ensureDual() {
         if (dualReady) return
         solidReady = false
         spotReady = false
-        root.exec(
+        submitInit(
             "SYS=\"$SYS_REG\"; " +
                 "echo 1 > \"$SYS_HWEN\"; " +
                 "echo 2 > \"$SYS_EFFECT\"; " +
@@ -216,15 +215,14 @@ class LedController(private val context: Context) {
                 "for b in 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08 0x09 0x0a 0x0b 0x0c " +
                 "0x0d 0x0e 0x0f 0x10 0x11 0x12 0x13 0x14 0x15 0x16 0x17 0x18; do " +
                 "echo \"\$b 0xff\" > \"\$SYS\"; done"
-        )
-        dualReady = true
+        ).also { dualReady = it }
     }
 
     private fun ensureSpot() {
         if (spotReady) return
         solidReady = false
         dualReady = false
-        root.exec(
+        submitInit(
             "SYS=\"$SYS_REG\"; " +
                 "echo 1 > \"$SYS_HWEN\"; " +
                 "echo 2 > \"$SYS_EFFECT\"; " +
@@ -236,8 +234,17 @@ class LedController(private val context: Context) {
                 "echo '0xa7 0xcc' > \"\$SYS\"; " +
                 "echo '0xab 0xff' > \"\$SYS\"; " +
                 "echo '0xac 0x00' > \"\$SYS\""
-        )
-        spotReady = true
+        ).also { spotReady = it }
+    }
+
+    /**
+     * Init sequences go through the persistent shell, not a new `su -c` process:
+     * the shell keeps write order, and the render loop never waits on root.
+     */
+    private fun submitInit(command: String): Boolean {
+        if (root.submit(command)) return true
+        if (root.ensure()) return root.submit(command)
+        return false
     }
 
     private fun writeFast(cmd: String) {
@@ -277,7 +284,7 @@ class LedController(private val context: Context) {
             lastFrame = null
             resetModeFlags()
             if (path == Path.ROOT) {
-                root.exec(
+                root.submit(
                     "SYS=\"$SYS_REG\"; " +
                         "echo 1 > \"$SYS_HWEN\"; " +
                         "echo 2 > \"$SYS_EFFECT\"; " +

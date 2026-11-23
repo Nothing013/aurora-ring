@@ -168,8 +168,10 @@ class RenderEngine(
     }
 
     fun refreshHardware() {
-        led.refreshPath()
-        wake()
+        Thread {
+            runCatching { led.refreshPath() }
+            wake()
+        }.apply { isDaemon = true }.start()
     }
 
     fun releaseHardware() {
