@@ -90,6 +90,9 @@ object LightsApi {
         cachedBinder = null
     }
 
+    /** One-shot root probe for the setup screen. Blocks: call off the main thread. */
+    fun hasRoot(): Boolean = runCatching { RootShell().probe() }.getOrDefault(false)
+
     private inline fun transact(block: (Parcel) -> Unit): Boolean {
         val b = binder() ?: return false
         val data = Parcel.obtain()

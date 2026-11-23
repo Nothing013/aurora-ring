@@ -23,6 +23,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.aurora.ring.led.LightsApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SetupScreen(
@@ -44,6 +48,9 @@ fun SetupScreen(
     val context = LocalContext.current
     val shizukuAlive = LightsApi.shizukuAlive()
     val shizukuGranted = LightsApi.shizukuGranted()
+    val rootOk by produceState<Boolean?>(initialValue = null, refreshKey) {
+        value = withContext(Dispatchers.IO) { LightsApi.hasRoot() }
+    }
 
     Box(
         modifier = Modifier
@@ -98,9 +105,13 @@ fun SetupScreen(
             GlassCard(title = "1 · Control path", subtitle = "Root is best, Shizuku also works") {
                 StatusLine(
                     label = "Root (direct AW21024 registers)",
-                    state = "auto-detected",
-                    ok = false,
-                    neutral = true
+                    state = when (rootOk) {
+                        null -> "checking…"
+                        true -> "available"
+                        false -> "not granted"
+                    },
+                    ok = rootOk == true,
+                    neutral = rootOk == null
                 )
                 StatusLine(
                     label = "Shizuku service",
