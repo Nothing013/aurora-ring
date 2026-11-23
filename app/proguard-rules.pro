@@ -1,0 +1,7 @@
+-keep class dev.aurora.ring.led.LightsApi { *; }
+-keep class dev.aurora.ring.led.LightsApi$* { *; }
+-keep class dev.aurora.ring.service.** { *; }
+-keep class rikka.shizuku.** { *; }
+-keep class moe.shizuku.** { *; }
+-dontwarn rikka.shizuku.**
+-dontwarn moe.shizuku.**

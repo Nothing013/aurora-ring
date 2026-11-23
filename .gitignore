@@ -1,0 +1,13 @@
+.gradle/
+build/
+*/build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+*.p12
+*.p12.b64
+password.txt
+captures/
+.externalNativeBuild/
+.cxx/
