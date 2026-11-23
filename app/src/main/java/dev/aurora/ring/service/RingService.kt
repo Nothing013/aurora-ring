@@ -157,7 +157,8 @@ class RingService : Service() {
         }
 
         if (settings.audio.enabled) {
-            audio.start(audioConfig(settings))
+            if (audio.isRunning()) audio.update(audioConfig(settings))
+            else audio.start(audioConfig(settings))
         } else {
             audio.stop()
         }
@@ -418,6 +419,10 @@ class RingService : Service() {
                 .putExtra(EXTRA_PKG, pkg)
                 .putExtra(EXTRA_LABEL, label)
             runCatching { context.startForegroundService(intent) }
+        }
+
+        fun refreshAudioGate(context: Context) {
+            instance?.syncAudioGate()
         }
     }
 }

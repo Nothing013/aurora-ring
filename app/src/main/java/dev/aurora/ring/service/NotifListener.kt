@@ -18,6 +18,7 @@ class NotifListener : NotificationListenerService() {
                 if (isMedia(sbn.notification)) MediaGate.onMedia(sbn.packageName)
             }
         }
+        RingService.refreshAudioGate(this)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -25,7 +26,10 @@ class NotifListener : NotificationListenerService() {
         if (sbn.packageName == packageName) return
 
         val media = isMedia(notification)
-        if (media) MediaGate.onMedia(sbn.packageName)
+        if (media) {
+            MediaGate.onMedia(sbn.packageName)
+            RingService.refreshAudioGate(this)
+        }
 
         if (media || notification.flags and Notification.FLAG_ONGOING_EVENT != 0) return
         if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
@@ -49,7 +53,10 @@ class NotifListener : NotificationListenerService() {
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         val notification = sbn?.notification ?: return
-        if (isMedia(notification)) MediaGate.onRemoved(sbn.packageName)
+        if (isMedia(notification)) {
+            MediaGate.onRemoved(sbn.packageName)
+            RingService.refreshAudioGate(this)
+        }
     }
 
     private fun isMedia(notification: Notification): Boolean {

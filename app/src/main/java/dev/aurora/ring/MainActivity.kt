@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        if (!Permissions.hasNotifications(this)) {
+        if (!Permissions.hasNotifications(this) && !state.settings.setupDone) {
             runCatching { notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
         }
     }

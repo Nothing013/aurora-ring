@@ -124,6 +124,8 @@ class BeatEngine(private val context: Context) {
         }
     }
 
+    fun isRunning(): Boolean = running
+
     fun update(cfg: Config) {
         val previous = config
         config = cfg

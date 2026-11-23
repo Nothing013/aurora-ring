@@ -54,8 +54,6 @@ fun HomeScreen(
     onRequestMic: () -> Unit
 ) {
     val settings = state.settings
-    val engine by state.engineStatus.collectAsStateWithLifecycle()
-    val audio by state.audioLive.collectAsStateWithLifecycle()
 
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var picker by remember { mutableStateOf<PickerTarget?>(null) }
@@ -97,14 +95,11 @@ fun HomeScreen(
         ) {
             Header(
                 running = settings.running,
-                path = engine.path,
+                state = state,
                 onToggle = { state.setRunning(!settings.running) }
             )
 
-            PreviewCard(
-                state = state,
-                onOpenAudio = { tab = 1 }
-            )
+            PreviewCard(state = state)
 
             TabPills(
                 labels = listOf("Lights", "Audio", "Alerts", "System"),
@@ -146,7 +141,8 @@ fun HomeScreen(
 enum class PickerTarget { NOTIF, AUDIO }
 
 @Composable
-private fun Header(running: Boolean, path: String, onToggle: () -> Unit) {
+private fun Header(running: Boolean, state: AppState, onToggle: () -> Unit) {
+    val engine by state.engineStatus.collectAsStateWithLifecycle()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -175,7 +171,7 @@ private fun Header(running: Boolean, path: String, onToggle: () -> Unit) {
                 color = Aurora.Text
             )
             Text(
-                text = if (running) "Live · ${path.ifBlank { "starting" }}" else "Paused",
+                text = if (running) "Live · ${engine.path.ifBlank { "starting" }}" else "Paused",
                 style = MaterialTheme.typography.labelMedium,
                 color = if (running) Aurora.Mint else Aurora.TextDim
             )
@@ -202,7 +198,7 @@ private fun Header(running: Boolean, path: String, onToggle: () -> Unit) {
 }
 
 @Composable
-private fun PreviewCard(state: AppState, onOpenAudio: () -> Unit) {
+private fun PreviewCard(state: AppState) {
     val settings = state.settings
     val audio by state.audioLive.collectAsStateWithLifecycle()
     val engine by state.engineStatus.collectAsStateWithLifecycle()
