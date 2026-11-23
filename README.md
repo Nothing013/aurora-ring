@@ -130,7 +130,9 @@ pulse rather than a fade.
 
 ## Hardware notes
 
-Full details in [docs/HARDWARE.md](docs/HARDWARE.md). Short version:
+Full details in [docs/HARDWARE.md](docs/HARDWARE.md). The reverse-engineering
+report — what DashDazz and HaloLight did, feature by feature, and what changed —
+is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Short version:
 
 - LED driver: **Awinic AW21024**, 24 channels, I²C address `0x30` on bus 6,
   exposed as `/sys/class/leds/aw21024_led/` (`reg`, `hwen`, `effect`, ...).
